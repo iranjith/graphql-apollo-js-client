@@ -1,45 +1,70 @@
 import * as React from "react";
-import { Routes, Route, Link, useMatch } from "react-router-dom";
+import { Routes, Route, Link, useMatch, useLocation } from "react-router-dom";
 import "./style-sessions.css";
-import { Sessions, AddSession } from "./Sessions"
-import { Speakers, Speaker } from "./Speakers"
+import { Sessions, AddSession } from "./Sessions";
+import { Speakers, Speaker } from "./Speakers";
 import banner_image from "../../assets/images/banner3.png";
 
 export function Conference() {
-  const { path, url } = useMatch();
+  const { pathname } = useLocation();
+  const url = window.location.href;
+  console.log({ pathname, url });
 
   return (
     <>
       <Routes>
-        <Route path={`${path}/sessions/new`}>	
-          <AddSession />	
-        </Route>
-        <Route path={`${path}/sessions`}>
-          <Sessions />
-        </Route>
-        <Route path={`${path}/speakers`}>
-          <Speakers />
-        </Route>
-        <Route path={`${path}/speaker/:speaker_id`}>
-          <Speaker />
-        </Route>
-        <Route path={`${path}`}>
-          <section className="banner">
-            <img src={banner_image} alt="" />
-            <div className="inner-content col-md-12">
-              <div className="container jumboContainer">
-                <div className="col-md-8 middle">
-                  <HeroLinkButton to={`${url}/speakers`}>
-                    View Speakers
-                  </HeroLinkButton>
-                  <HeroLinkButton to={`${url}/sessions`}>
-                    View Sessions
-                  </HeroLinkButton>
+        <Route
+          path='/sessions/new'
+          element={
+            <>
+              <AddSession />
+            </>
+          }
+        ></Route>
+        <Route
+          path='/sessions'
+          element={
+            <>
+              <Sessions />
+            </>
+          }
+        ></Route>
+        <Route
+          path='/speakers'
+          element={
+            <>
+              <Speakers />
+            </>
+          }
+        ></Route>
+        <Route
+          path='/speakers/:id'
+          element={
+            <>
+              <Speaker />
+            </>
+          }
+        ></Route>
+        <Route
+          path='/'
+          element={
+            <section className="banner">
+              <img src={banner_image} alt="" />
+              <div className="inner-content col-md-12">
+                <div className="container jumboContainer">
+                  <div className="col-md-8 middle">
+                    <HeroLinkButton to={`${url}/speakers`}>
+                      View Speakers
+                    </HeroLinkButton>
+                    <HeroLinkButton to={`${url}/sessions`}>
+                      View Sessions
+                    </HeroLinkButton>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </Route>
+            </section>
+          }
+        ></Route>
       </Routes>
     </>
   );

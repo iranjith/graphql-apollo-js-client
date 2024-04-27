@@ -54,7 +54,7 @@ function AppRouter() {
             }
           ></Route>
           <Route
-            path="/conference"
+            path="/conference/*"
             element={
               <>
                 <Conference />
