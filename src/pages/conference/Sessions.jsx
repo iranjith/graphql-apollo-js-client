@@ -4,17 +4,19 @@ import { Link } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import { gql, useQuery } from "@apollo/client";
 
-/* ---> Define queries, mutations and fragments here */
-
 const SESSIONS = gql`
   query sessions($day: String!) {
     sessions(day: $day) {
       id
-      titles
+      title
       day
       level
       room
       startsAt
+      speakers {
+        id
+        name
+      }
     }
   }
 `;
@@ -39,9 +41,8 @@ function SessionList({ day }) {
 }
 
 function SessionItem({ session }) {
-  const { id, title, day, level, room, startsAt } = session;
+  const { id, title, day, level, room, startsAt, speakers } = session;
 
-  /* ---> Replace hard coded session values with data that you get back from GraphQL server here */
   return (
     <div key={"id"} className="col-xs-12 col-sm-6" style={{ padding: 5 }}>
       <div className="panel panel-default">
@@ -54,7 +55,13 @@ function SessionItem({ session }) {
           <h5>{`Room Number: ${room} `}</h5>
           <h5>{`Starts at: ${startsAt}`}</h5>
         </div>
-        <div className="panel-footer"></div>
+        <div className="panel-footer">
+          {speakers.map((speaker) => (
+            <Link key={speaker.id} to={`/conference/speaker/${speaker.id}`}>
+              View {speaker.name} Profile
+            </Link> 
+          ))}
+        </div>
       </div>
     </div>
   );

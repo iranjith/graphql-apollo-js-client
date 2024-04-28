@@ -1,24 +1,40 @@
 import * as React from "react";
 import "./style-sessions.css";
 import { gql, useQuery } from "@apollo/client";
-/* ---> Define queries, mutations and fragments here */
+import { useParams } from "react-router-dom";
+
+const SPEAKER_ATTRIBUTES = gql`
+  fragment SpeakerInfo on Speaker {
+    id
+    name
+    bio
+    sessions {
+      id
+      title
+      day
+      level
+      room
+      startsAt
+    }
+  }
+`;
 
 const SPEAKERS = gql`
   query speakers {
     speakers {
-      id
-      name
-      bio
-      sessions {
-        id
-        title
-        day
-        level
-        room
-        startsAt
-      }
+      ...SpeakerInfo
     }
   }
+  ${SPEAKER_ATTRIBUTES}
+`;
+
+const SPEAKERID = gql`
+  query speakerById($id: ID!) {
+    speakerById(id: $id) {
+      ...SpeakerInfo
+    }
+  }
+  ${SPEAKER_ATTRIBUTES}
 `;
 
 const SpeakerList = () => {
@@ -82,21 +98,38 @@ const SpeakerList = () => {
 };
 
 const SpeakerDetails = () => {
-  /* ---> Replace hardcoded speaker values with data that you get back from GraphQL server here */
+  const { speaker_id } = useParams();
+
+  const { loading, error, data } = useQuery(SPEAKERID, {
+    variables: { id: speaker_id },
+  });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading speaker: {error.message}</p>;
+
+  const speaker = data.speakerById;
+  const { id, name, bio, sessions } = speaker;
+
   return (
     <div key={"id"} className="col-xs-12" style={{ padding: 5 }}>
       <div className="panel panel-default">
         <div className="panel-heading">
-          <h3 className="panel-title">{"name"}</h3>
+          <h3 className="panel-title">{name}</h3>
         </div>
         <div className="panel-body">
-          <h5>{"bio"}</h5>
+          <h5>{bio}</h5>
         </div>
         <div className="panel-footer">
           {
-            {
-              /* ---> Loop through speaker's sessions here */
-            }
+             sessions.map((session) => (
+              <span key={session.id}>
+                <h5>{`Title: ${session.title}`}</h5>
+                <h5>{`Day: ${session.day}`}</h5>
+                <h5>{`Level: ${session.level}`}</h5>
+                <h5>{`Room: ${session.room}`}</h5>
+                <h5>{`Starts at: ${session.startsAt}`}</h5>
+              </span>
+             ))
           }
         </div>
       </div>

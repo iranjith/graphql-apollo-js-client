@@ -38,7 +38,7 @@ export function Conference() {
           }
         ></Route>
         <Route
-          path='/speakers/:id'
+          path='/speaker/:speaker_id'
           element={
             <>
               <Speaker />
