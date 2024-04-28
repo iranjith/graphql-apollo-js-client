@@ -10,7 +10,7 @@ const SESSIONS = gql`
   query sessions($day: String!) {
     sessions(day: $day) {
       id
-      title
+      titles
       day
       level
       room
@@ -20,17 +20,18 @@ const SESSIONS = gql`
 `;
 
 function AllSessionList() {
-  /* ---> Invoke useQuery hook here to retrieve all sessions and call SessionItem */
   return <SessionItem />;
 }
 
 function SessionList({ day }) {
   if (day === "") day = "Wednesday";
-  const { loading, data } = useQuery(SESSIONS, {
+  const { loading, error, data } = useQuery(SESSIONS, {
     variables: { day },
   });
 
   if (loading) return <p>Loading...</p>;
+
+  if(error) return <p>Error loading sessions: {error.message}</p>;
 
   return data.sessions.map((session) => (
     <SessionItem key={session.id} session={{ ...session }} />
