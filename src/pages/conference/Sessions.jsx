@@ -4,21 +4,36 @@ import { Link } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import { gql, useQuery } from "@apollo/client";
 
-const SESSIONS = gql`
-  query sessions($day: String!) {
-    sessions(day: $day) {
+const SESSION_ATTRIBUTES = gql`
+  fragment SessionInfo on Session {
+    id
+    title
+    day
+    level
+    room
+    startsAt
+    speakers {
       id
-      title
-      day
-      level
-      room
-      startsAt
-      speakers {
-        id
-        name
-      }
+      name
     }
   }
+`;
+
+const SESSIONS = gql`
+  query sessions($day: String!) {
+    intro: sessions(day: $day, level: "Introductory and overview") {
+      ...SessionInfo
+    }
+
+    intermediate: sessions(day: $day, level: "Intermediate") {
+      ...SessionInfo
+    }
+
+    advanced: sessions(day: $day, level: "Advanced") {
+      ...SessionInfo
+    }
+  }
+  ${SESSION_ATTRIBUTES}
 `;
 
 function AllSessionList() {
@@ -27,17 +42,30 @@ function AllSessionList() {
 
 function SessionList({ day }) {
   if (day === "") day = "Wednesday";
+
   const { loading, error, data } = useQuery(SESSIONS, {
     variables: { day },
   });
 
   if (loading) return <p>Loading...</p>;
 
-  if(error) return <p>Error loading sessions: {error.message}</p>;
+  if (error) return <p>Error loading sessions: {error.message}</p>;
 
-  return data.sessions.map((session) => (
-    <SessionItem key={session.id} session={{ ...session }} />
-  ));
+  const results = [];
+
+  results
+    .push(data.intro
+    .map((session) => <SessionItem key={session.id} session={{...session}} />));
+
+  results
+    .push(data.advanced
+    .map((session) => <SessionItem key={session.id} session={{...session}} />));
+
+  results
+    .push(data.intermediate
+    .map((session) => <SessionItem key={session.id} session={{...session}} />));
+
+  return results;
 }
 
 function SessionItem({ session }) {
@@ -59,7 +87,7 @@ function SessionItem({ session }) {
           {speakers.map((speaker) => (
             <Link key={speaker.id} to={`/conference/speaker/${speaker.id}`}>
               View {speaker.name} Profile
-            </Link> 
+            </Link>
           ))}
         </div>
       </div>
@@ -69,6 +97,7 @@ function SessionItem({ session }) {
 
 export function Sessions() {
   const [day, setDay] = useState("");
+
   return (
     <>
       <section className="banner">
